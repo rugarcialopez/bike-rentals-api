@@ -5,7 +5,7 @@ import User, { IUser, Role } from '../../models/user';
 
 const signUp = async (req: Request, res: Response): Promise<void> => {
   try {
-    const body = req.body as Pick<IUserDocument, 'firstName' | 'lastName' | 'email' | 'password'>;
+    const body = req.body as Pick<IUserDocument, 'firstName' | 'lastName' | 'email' | 'password' | 'role'>;
     //Check if firstName, lastName, email and password are set
     const { firstName, lastName, email, password } = req.body;
     if (!(firstName && lastName && email && password)) {
@@ -24,7 +24,7 @@ const signUp = async (req: Request, res: Response): Promise<void> => {
       lastName: body.lastName,
       email: body.email.toLowerCase(),
       password: User.hashPassword(body.password),
-      role: Role.User
+      role: body.role || Role.User
     });
   
     const newUser: IUser = await user.save();

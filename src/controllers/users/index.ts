@@ -38,29 +38,6 @@ const getUsers = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
-const getUser = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const {
-        params: { id }
-    } = req;
-    const userDB = await User.findById({ _id: id });
-    if (!userDB) {
-      res.status(401).send({ message: 'User does not exist'});
-      return;
-    }
-    const user = {
-      id,
-      firstName: userDB.firstName,
-      lastName: userDB.lastName,
-      email: userDB.email,
-      role: userDB.role
-    }
-    res.status(200).json({user});
-  } catch (error) {
-    res.status(500).send(error);
-  }
-}
-
 const addUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = res.locals.jwtPayload.userId;
@@ -124,4 +101,4 @@ const deleteUser = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
-export { getUsers, getUser, addUser, updateUser, deleteUser };
+export { getUsers, addUser, updateUser, deleteUser };
