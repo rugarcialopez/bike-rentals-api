@@ -2,20 +2,6 @@ import { Response, Request } from 'express';
 import User, { IUser } from '../../models/user';
 import { IUserDocument } from '../../types/user';
 
-const getAllUsers = async (userId: string) => {
-  const users: IUser[] = await User.find({ _id: { $ne: userId }});
-  const transformedUsers =  (users || []).map((user: IUser) => (
-    {
-      id: user._id.toString(),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
-    }
-  ));
-  return transformedUsers;
-}
-
 const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {
     //Get the user ID from previous midleware
@@ -40,7 +26,6 @@ const getUsers = async (req: Request, res: Response): Promise<void> => {
 
 const addUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = res.locals.jwtPayload.userId;
     const body = req.body as Pick<IUserDocument, 'firstName' | 'lastName' | 'email' | 'password' | 'role'>;
     //Check if firstName, lastName, email, password and role are set
     const { firstName, lastName, email, password, role } = req.body;
@@ -63,10 +48,15 @@ const addUser = async (req: Request, res: Response): Promise<void> => {
       role: body.role
     });
   
-    await user.save();
+    const newUser = await user.save();
 
-    const users = await getAllUsers(userId);
-    res.status(200).json({ users });
+    res.status(200).json({ user: {
+      id: newUser._id.toString(),
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      email: newUser.email,
+      role: newUser.role,
+    } });
   } catch (error) {
     res.status(500).send(error);
   }
@@ -74,28 +64,37 @@ const addUser = async (req: Request, res: Response): Promise<void> => {
 
 const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = res.locals.jwtPayload.userId;
     const {
         params: { id },
         body,
     } = req;
-    await User.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       { _id: id },
-      body
+      body,
+      {new: true}
     );
-    const users = await getAllUsers(userId);
-    res.status(200).json({ users });
+    res.status(200).json({ user: {
+      id: updatedUser?._id.toString(),
+      firstName: updatedUser?.firstName,
+      lastName: updatedUser?.lastName,
+      email: updatedUser?.email,
+      role: updatedUser?.role,
+    } });
   } catch (error) {
     res.status(500).send(error);
   }
 }
 
 const deleteUser = async (req: Request, res: Response): Promise<void> => {
-  const userId = res.locals.jwtPayload.userId;
   try {
-    await User.findByIdAndRemove(req.params.id);
-    const users = await getAllUsers(userId);
-    res.status(200).json({ users });
+    const removedUser = await User.findByIdAndRemove(req.params.id);
+    res.status(200).json({ user: {
+      id: removedUser?._id.toString(),
+      firstName: removedUser?.firstName,
+      lastName: removedUser?.lastName,
+      email: removedUser?.email,
+      role: removedUser?.role,
+    } });
   } catch (error) {
     res.status(500).send(error);
   }

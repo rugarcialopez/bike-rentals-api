@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import app from '../src/app';
 import supertest from 'supertest';
 import User, { Role } from '../src/models/user';
-import { IUserDocument } from '../src/types/user';
 
 type AuthUser = {
   firstName: string,
@@ -175,7 +174,7 @@ describe('POST /api/add-user',  () => {
     const token = await signUp({
       firstName: 'Manager',
       lastName: 'One',
-      email: 'mnanager01@example.com',
+      email: 'manager01@example.com',
       password: 'manager01',
       role: 'manager'
     }); 
@@ -186,8 +185,11 @@ describe('POST /api/add-user',  () => {
     .expect(200)
     .then(async (response) => {
       // Check the response
-      expect(response.body.users).toBeTruthy();
-      expect(response.body.users.length).toEqual(1);
+      expect(response.body.user).toBeTruthy();
+      expect(response.body.user.firstName).toBe(newUser.firstName);
+      expect(response.body.user.lastName).toBe(newUser.lastName);
+      expect(response.body.user.email).toBe(newUser.email);
+      expect(response.body.user.role).toBe(newUser.role);
 
       // Check data in the database
       const user = await User.findOne({ email: 'user01@example.com' });
@@ -199,7 +201,12 @@ describe('POST /api/add-user',  () => {
 
 describe('PUT /api/update-user/:id',  () => {
 
-  const updatedUser = { firstName: 'User updated' };
+  const updatedUser = { 
+    firstName: 'User updated',
+    lastName: 'One',
+    email:'user01@example.com',
+    role: 'user'
+  };
 
   test('should require authorization', async () => {
     await supertest(app).put('/api/update-user/1')
@@ -239,8 +246,11 @@ describe('PUT /api/update-user/:id',  () => {
     .expect(200)
     .then(async (response) => {
       // Check the response
-      expect(response.body.users).toBeTruthy();
-      expect(response.body.users.length).toEqual(1);
+      expect(response.body.user).toBeTruthy();
+      expect(response.body.user.firstName).toBe(updatedUser.firstName);
+      expect(response.body.user.lastName).toBe(updatedUser.lastName);
+      expect(response.body.user.email).toBe(updatedUser.email);
+      expect(response.body.user.role).toBe(updatedUser.role);
 
       // Check data in the database
       const user = await User.findOne({ email: 'user01@example.com' });
@@ -272,7 +282,7 @@ describe('DELETE /api/delete-user/:id',  () => {
   })
 
   test('should remove an existing user', async () => {
-    const user = await User.create({ firstName: 'User', lastName: 'One', email:'user01@example.com', password: 'test', role: 'user' });
+    const newUser = await User.create({ firstName: 'User', lastName: 'One', email:'user01@example.com', password: 'test', role: 'user' });
     const token = await signUp({
       firstName: 'Manager',
       lastName: 'One',
@@ -281,13 +291,21 @@ describe('DELETE /api/delete-user/:id',  () => {
       role: 'manager'
     }); 
 
-    await supertest(app).delete(`/api/delete-user/${user._id.toString()}`)
+    await supertest(app).delete(`/api/delete-user/${newUser._id.toString()}`)
     .set('token', token)
     .expect(200)
     .then(async (response) => {
       // Check the response
-      expect(response.body.users).toBeTruthy();
-      expect(response.body.users.length).toEqual(0);
+      expect(response.body.user).toBeTruthy();
+      expect(response.body.user.firstName).toBe(newUser.firstName);
+      expect(response.body.user.lastName).toBe(newUser.lastName);
+      expect(response.body.user.email).toBe(newUser.email);
+      expect(response.body.user.role).toBe(newUser.role);
+
+      // Check data in the database
+      const user = await User.findOne({ email: 'user01@example.com' });
+      expect(user).toBeNull();
+
     });
   })
 });
