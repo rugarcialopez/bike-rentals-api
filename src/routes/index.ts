@@ -4,6 +4,8 @@ import { verifyRole } from '../middlewares/verifyRole';
 import { Role } from '../models/user';
 import { signIn, signUp } from '../controllers/auth/index';
 import { addUser, getUsers, updateUser, deleteUser } from '../controllers/users/index';
+import { addBike, getBikes, updateBike, deleteBike } from '../controllers/bikes';
+import uploadFile from '../middlewares/uploadFile';
 
 const router: Router = Router();
 
@@ -16,6 +18,10 @@ router.get('/users',[verifyAuthToken, verifyRole([Role.Manager])], getUsers);
 router.post('/add-user', [verifyAuthToken, verifyRole([Role.Manager])], addUser);
 router.put('/update-user/:id', [verifyAuthToken, verifyRole([Role.Manager])], updateUser);
 router.delete('/delete-user/:id', [verifyAuthToken, verifyRole([Role.Manager])], deleteUser);
+router.get('/bikes', [verifyAuthToken], getBikes);
+router.post('/add-bike', [verifyAuthToken, verifyRole([Role.Manager]), uploadFile], addBike);
+router.put('/update-bike/:id', [verifyAuthToken, verifyRole([Role.Manager]), uploadFile], updateBike);
+router.delete('/delete-bike/:id', [verifyAuthToken, verifyRole([Role.Manager])], deleteBike);
 
 
 export default router;
