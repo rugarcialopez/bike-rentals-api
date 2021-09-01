@@ -65,13 +65,12 @@ const updateBike = async (req: Request, res: Response): Promise<void> => {
       {
         brand: body.brand,
         color: body.color.split(','),
-        weight: parseInt(body.weight),
+        weight: body.weight,
         location: {
           longitude: body.longitude,
           latitude: body.latitude
         },
-        photo: req?.file?.filename,
-        availableForRenting: body.availableForRenting === 'true'
+        availableForRenting: body.availableForRenting
       },
       {new: true}
     );

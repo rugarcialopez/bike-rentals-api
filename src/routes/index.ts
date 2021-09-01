@@ -20,7 +20,7 @@ router.put('/update-user/:id', [verifyAuthToken, verifyRole([Role.Manager])], up
 router.delete('/delete-user/:id', [verifyAuthToken, verifyRole([Role.Manager])], deleteUser);
 router.get('/bikes', [verifyAuthToken], getBikes);
 router.post('/add-bike', [verifyAuthToken, verifyRole([Role.Manager]), uploadFile], addBike);
-router.put('/update-bike/:id', [verifyAuthToken, verifyRole([Role.Manager]), uploadFile], updateBike);
+router.put('/update-bike/:id', [verifyAuthToken, verifyRole([Role.Manager])], updateBike);
 router.delete('/delete-bike/:id', [verifyAuthToken, verifyRole([Role.Manager])], deleteBike);
 
 
