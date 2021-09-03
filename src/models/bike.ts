@@ -36,7 +36,10 @@ const bikeSchema: Schema = new Schema({
       required: true
     },
     
-
+    rates: {
+      type: [Number],
+      default: []
+    }
 
 }, { timestamps: true });
 

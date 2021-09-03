@@ -4,7 +4,7 @@ import { verifyRole } from '../middlewares/verifyRole';
 import { Role } from '../models/user';
 import { signIn, signUp } from '../controllers/auth/index';
 import { addUser, getUsers, updateUser, deleteUser } from '../controllers/users/index';
-import { addBike, getBikes, updateBike, deleteBike } from '../controllers/bikes';
+import { addBike, getBikes, updateBike, deleteBike, addRate } from '../controllers/bikes';
 import uploadFile from '../middlewares/uploadFile';
 import { createReserve, deleteReserve, getReserves } from '../controllers/reserves';
 
@@ -22,6 +22,7 @@ router.delete('/delete-user/:id', [verifyAuthToken, verifyRole([Role.Manager])],
 router.get('/bikes', [verifyAuthToken], getBikes);
 router.post('/add-bike', [verifyAuthToken, verifyRole([Role.Manager]), uploadFile], addBike);
 router.put('/update-bike/:id', [verifyAuthToken, verifyRole([Role.Manager])], updateBike);
+router.post('/add-rate/:id', [verifyAuthToken, verifyRole([Role.User])], addRate);
 router.delete('/delete-bike/:id', [verifyAuthToken, verifyRole([Role.Manager])], deleteBike);
 router.get('/reserves', [verifyAuthToken, verifyRole([Role.User])], getReserves);
 router.post('/reserves', [verifyAuthToken, verifyRole([Role.User])], createReserve);

@@ -4,12 +4,21 @@ import { IBike } from '../../types/bike';
 
 const API_URL = process.env.BIKES_API_URL || 'http://localhost:4000';
 
+const averageRage = (rates: number[]) => {
+  if (!rates || rates.length === 0) return 0;
+  const reducer = (accumulator: number, currentValue: number) => accumulator + currentValue;
+  const numOfRates = rates.length;
+  const sum = rates.reduce(reducer);
+  return Math.round(sum / numOfRates);
+}
+
 const getBikes = async (req: Request, res: Response): Promise<void> => {
   try {
     let filter = {};
     const brand = req.query.brand as string;
     const color = req.query.color as string;
     const weight = req.query.weight as string;
+    const rate = req.query.rate as string;
     filter = brand  ? { ...filter, brand: brand } : filter;
     filter = color  ? {...filter, color: { $in: [color] }} : filter ;
     filter = weight  ? { ...filter, weight: weight } : filter;
@@ -22,9 +31,16 @@ const getBikes = async (req: Request, res: Response): Promise<void> => {
         weight: bike.weight,
         location: bike.location,
         photo: `${API_URL}/${bike.photo}`,
-        availableForRenting: bike.availableForRenting
+        availableForRenting: bike.availableForRenting,
+        averageRate: averageRage(bike.rates),
+        numberOfRates: bike.rates.length
       }
     ));
+    if (rate) {
+      const filteredBikes = transformedBikes.filter(bike => bike.averageRate === parseInt(rate));
+      res.status(200).json({ bikes: filteredBikes });
+      return;
+    }
     res.status(200).json({ bikes: transformedBikes });
   } catch (error) {
     res.status(500).send(error);
@@ -53,7 +69,9 @@ const addBike = async (req: Request, res: Response): Promise<void> => {
       weight: newBike.weight,
       location: newBike.location,
       photo: newBike.photo,
-      availableForRenting: newBike.availableForRenting
+      availableForRenting: newBike.availableForRenting,
+      averageRate: 0,
+      numberOfRates: 0
     } });
   } catch (error) {
     res.status(500).send(error);
@@ -87,7 +105,7 @@ const updateBike = async (req: Request, res: Response): Promise<void> => {
       weight: updatedBike?.weight,
       location: updatedBike?.location,
       photo: updatedBike?.photo,
-      availableForRenting: updatedBike?.availableForRenting
+      availableForRenting: updatedBike?.availableForRenting,
     } });
   } catch (error) {
     res.status(500).send(error);
@@ -111,5 +129,26 @@ const deleteBike = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
+const addRate = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {
+        params: { id },
+        body,
+    } = req;
+    const updatedBike = await Bike.findByIdAndUpdate(
+      { _id: id },
+      { $push: { rates: parseInt(body.rate) } },
+      {new: true}
+    );
+    res.status(200).json({ rate: {
+      bikeId: updatedBike?._id.toString(),
+      averageRate: averageRage(updatedBike?.rates || []),
+      numberOfRates: updatedBike?.rates.length
+    } });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
 
-export { getBikes, addBike, updateBike, deleteBike };
+
+export { getBikes, addBike, updateBike, deleteBike, addRate };

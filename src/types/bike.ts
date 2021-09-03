@@ -10,4 +10,5 @@ export interface IBike extends Document {
   };
   photo: string;
   availableForRenting: boolean;
+  rates: number[]
 }
