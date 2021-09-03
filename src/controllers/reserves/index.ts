@@ -6,6 +6,8 @@ import User, { IUser } from '../../models/user';
 import { IBike } from '../../types/bike';
 import { IReserve } from '../../types/reserve';
 
+const API_URL = process.env.BIKES_API_URL || 'http://localhost:4000';
+
 const getReserves = async (req: Request, res: Response): Promise<void> => {
   try {
     const filter = {};
@@ -23,7 +25,8 @@ const getReserves = async (req: Request, res: Response): Promise<void> => {
         fullName: reserve.fullName,
         userId: reserve.userId,
         bikeId: reserve.bikeId,
-        date: moment(reserve.date).format('YYYY-MM-DD')
+        date: moment(reserve.date).format('LL'),
+        photo: `${API_URL}/${reserve.photo}`
       }
     ));
     res.status(200).json({ reserves: transformedReserves });
@@ -62,7 +65,8 @@ const createReserve = async (req: Request, res: Response): Promise<void> => {
       userId,
       brand: bike.brand,
       fullName: user.firstName + ' ' + user.lastName,
-      date: new Date(date)
+      date: new Date(date),
+      photo: bike.photo
     });
 
     const newReserve = await reserve.save();
@@ -72,11 +76,28 @@ const createReserve = async (req: Request, res: Response): Promise<void> => {
       bikeId: newReserve.bikeId,
       userId: newReserve.userId,
       fullName: newReserve.fullName,
-      date: moment(newReserve.date).format('YYYY-MM-DD')
+      photo: `${API_URL}/${newReserve.photo}`,
+      date: moment(newReserve.date).format('LL')
     } });
   } catch (error) {
     res.status(500).send(error);
   }
 }
 
-export { createReserve, getReserves };
+const deleteReserve = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const removedReserve = await Reserve.findByIdAndRemove(req.params.id);
+    res.status(200).json({ reserve: {
+      id: removedReserve?._id.toString(),
+      brand: removedReserve?.brand,
+      userId: removedReserve?.userId,
+      fullName: removedReserve?.fullName,
+      date: moment(removedReserve?.date).format('LL'),
+      photo: `${API_URL}/${removedReserve?.photo}`
+    } });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+}
+
+export { createReserve, getReserves, deleteReserve };

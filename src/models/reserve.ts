@@ -26,6 +26,10 @@ const reserveSchema: Schema = new Schema({
       type: Date,
       required: true
     },
+    photo: {
+      type: String,
+      required: true
+    }
 
 
 }, { timestamps: true });

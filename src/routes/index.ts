@@ -6,7 +6,7 @@ import { signIn, signUp } from '../controllers/auth/index';
 import { addUser, getUsers, updateUser, deleteUser } from '../controllers/users/index';
 import { addBike, getBikes, updateBike, deleteBike } from '../controllers/bikes';
 import uploadFile from '../middlewares/uploadFile';
-import { createReserve, getReserves } from '../controllers/reserves';
+import { createReserve, deleteReserve, getReserves } from '../controllers/reserves';
 
 const router: Router = Router();
 
@@ -25,6 +25,7 @@ router.put('/update-bike/:id', [verifyAuthToken, verifyRole([Role.Manager])], up
 router.delete('/delete-bike/:id', [verifyAuthToken, verifyRole([Role.Manager])], deleteBike);
 router.get('/reserves', [verifyAuthToken], getReserves);
 router.post('/reserves', [verifyAuthToken], createReserve);
+router.delete('/cancel-reserve/:id', [verifyAuthToken], deleteReserve);
 
 
 export default router;
