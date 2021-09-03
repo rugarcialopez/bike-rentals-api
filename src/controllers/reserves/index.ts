@@ -10,13 +10,8 @@ const API_URL = process.env.BIKES_API_URL || 'http://localhost:4000';
 
 const getReserves = async (req: Request, res: Response): Promise<void> => {
   try {
-    const filter = {};
-    // const brand = req.query.brand as string;
-    // const color = req.query.color as string;
-    // const weight = req.query.weight as string;
-    // filter = brand  ? { ...filter, brand: brand } : filter;
-    // filter = color  ? {...filter, color: { $in: [color] }} : filter ;
-    // filter = weight  ? { ...filter, weight: weight } : filter;
+    const userId = res.locals.jwtPayload.userId;
+    const filter = { userId: { $eq: userId }};
     const reserves: IReserve[] = await Reserve.find(filter);
     const transformedReserves =  (reserves || []).map((reserve: IReserve) => (
       {
