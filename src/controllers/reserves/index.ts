@@ -2,7 +2,7 @@ import { Response, Request } from 'express';
 import moment from 'moment';
 import Bike from '../../models/bike';
 import Reserve from '../../models/reserve';
-import User, { IUser } from '../../models/user';
+import User, { IUser, Role } from '../../models/user';
 import { IBike } from '../../types/bike';
 import { IReserve } from '../../types/reserve';
 
@@ -11,7 +11,11 @@ const API_URL = process.env.BIKES_API_URL || 'http://localhost:4000';
 const getReserves = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = res.locals.jwtPayload.userId;
-    const filter = { userId: { $eq: userId }};
+    const role = res.locals.jwtPayload.role;
+    let filter = {};
+    if (role === Role.User) {
+      filter = { userId: { $eq: userId }};
+    }
     const reserves: IReserve[] = await Reserve.find(filter);
     const transformedReserves =  (reserves || []).map((reserve: IReserve) => (
       {

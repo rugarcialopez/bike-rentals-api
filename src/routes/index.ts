@@ -24,7 +24,7 @@ router.post('/add-bike', [verifyAuthToken, verifyRole([Role.Manager]), uploadFil
 router.put('/update-bike/:id', [verifyAuthToken, verifyRole([Role.Manager])], updateBike);
 router.post('/add-rate/:id', [verifyAuthToken, verifyRole([Role.User])], addRate);
 router.delete('/delete-bike/:id', [verifyAuthToken, verifyRole([Role.Manager])], deleteBike);
-router.get('/reserves', [verifyAuthToken, verifyRole([Role.User])], getReserves);
+router.get('/reserves', [verifyAuthToken, verifyRole([Role.Manager, Role.User])], getReserves);
 router.post('/reserves', [verifyAuthToken, verifyRole([Role.User])], createReserve);
 router.delete('/cancel-reserve/:id', [verifyAuthToken, verifyRole([Role.User])], deleteReserve);
 
