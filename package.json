@@ -15,6 +15,7 @@
     "lint-and-fix": "eslint . --ext .ts --fix",
     "test": "jest",
     "test-w": "jest --watchAll",
+    "add-build": "git add dist",
     "pre-commit": [
       "ts.check",
       "build",

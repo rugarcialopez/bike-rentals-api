@@ -1,0 +1,33 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const verifyAuthToken_1 = require("../middlewares/verifyAuthToken");
+const verifyRole_1 = require("../middlewares/verifyRole");
+const user_1 = require("../models/user");
+const index_1 = require("../controllers/auth/index");
+const index_2 = require("../controllers/users/index");
+const bikes_1 = require("../controllers/bikes");
+const uploadFile_1 = __importDefault(require("../middlewares/uploadFile"));
+const reserves_1 = require("../controllers/reserves");
+const router = express_1.Router();
+router.get('/', (req, res) => {
+    res.status(200).json({ success: true });
+});
+router.post('/signUp', index_1.signUp);
+router.post('/signIn', index_1.signIn);
+router.get('/users', [verifyAuthToken_1.verifyAuthToken, verifyRole_1.verifyRole([user_1.Role.Manager])], index_2.getUsers);
+router.post('/add-user', [verifyAuthToken_1.verifyAuthToken, verifyRole_1.verifyRole([user_1.Role.Manager])], index_2.addUser);
+router.put('/update-user/:id', [verifyAuthToken_1.verifyAuthToken, verifyRole_1.verifyRole([user_1.Role.Manager])], index_2.updateUser);
+router.delete('/delete-user/:id', [verifyAuthToken_1.verifyAuthToken, verifyRole_1.verifyRole([user_1.Role.Manager])], index_2.deleteUser);
+router.get('/bikes', [verifyAuthToken_1.verifyAuthToken], bikes_1.getBikes);
+router.post('/add-bike', [verifyAuthToken_1.verifyAuthToken, verifyRole_1.verifyRole([user_1.Role.Manager]), uploadFile_1.default], bikes_1.addBike);
+router.put('/update-bike/:id', [verifyAuthToken_1.verifyAuthToken, verifyRole_1.verifyRole([user_1.Role.Manager])], bikes_1.updateBike);
+router.post('/add-rate/:id', [verifyAuthToken_1.verifyAuthToken, verifyRole_1.verifyRole([user_1.Role.User])], bikes_1.addRate);
+router.delete('/delete-bike/:id', [verifyAuthToken_1.verifyAuthToken, verifyRole_1.verifyRole([user_1.Role.Manager])], bikes_1.deleteBike);
+router.get('/reserves', [verifyAuthToken_1.verifyAuthToken, verifyRole_1.verifyRole([user_1.Role.Manager, user_1.Role.User])], reserves_1.getReserves);
+router.post('/reserves', [verifyAuthToken_1.verifyAuthToken, verifyRole_1.verifyRole([user_1.Role.User])], reserves_1.createReserve);
+router.delete('/cancel-reserve/:id', [verifyAuthToken_1.verifyAuthToken, verifyRole_1.verifyRole([user_1.Role.User])], reserves_1.deleteReserve);
+exports.default = router;
