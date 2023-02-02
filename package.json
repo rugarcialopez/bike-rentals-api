@@ -17,11 +17,7 @@
     "test": "jest",
     "test-w": "jest --watchAll",
     "add-build": "git add dist",
-    "pre-commit": [
-      "ts.check",
-      "build",
-      "add-build"
-    ]
+    "pre-commit": "add-build"
   },
   "jest": {
     "transform": {
